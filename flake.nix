@@ -212,7 +212,7 @@
                 package
                 kitty
                 swww
-              ]
+              ];
             # Copy config files to /etc
             environment.etc = {
               "greetd/kitty.conf".source = "${package}/etc/greetd/kitty.conf";
