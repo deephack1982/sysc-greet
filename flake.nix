@@ -6,8 +6,14 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
       in
@@ -39,66 +45,66 @@
 
           # Install additional files
           postInstall = ''
-            # Install ASCII configs
-            mkdir -p $out/share/sysc-greet/ascii_configs
-            cp -r ascii_configs/* $out/share/sysc-greet/ascii_configs/
+                        # Install ASCII configs
+                        mkdir -p $out/share/sysc-greet/ascii_configs
+                        cp -r ascii_configs/* $out/share/sysc-greet/ascii_configs/
 
-            # Install fonts
-            mkdir -p $out/share/sysc-greet/fonts
-            cp -r fonts/* $out/share/sysc-greet/fonts/
+                        # Install fonts
+                        mkdir -p $out/share/sysc-greet/fonts
+                        cp -r fonts/* $out/share/sysc-greet/fonts/
 
-            # Install wallpapers
-            mkdir -p $out/share/sysc-greet/wallpapers
-            cp -r wallpapers/* $out/share/sysc-greet/wallpapers/
+                        # Install wallpapers
+                        mkdir -p $out/share/sysc-greet/wallpapers
+                        cp -r wallpapers/* $out/share/sysc-greet/wallpapers/
 
-            # Install assets (logo, showcase)
-            mkdir -p $out/share/sysc-greet/Assets
-            cp assets/logo.png $out/share/sysc-greet/Assets/
-            cp assets/showcase.gif $out/share/sysc-greet/Assets/
+                        # Install assets (logo, showcase)
+                        mkdir -p $out/share/sysc-greet/Assets
+                        cp assets/logo.png $out/share/sysc-greet/Assets/
+                        cp assets/showcase.gif $out/share/sysc-greet/Assets/
 
-            # Install kitty config
-            mkdir -p $out/etc/greetd
-            cp config/kitty-greeter.conf $out/etc/greetd/kitty.conf
+                        # Install kitty config
+                        mkdir -p $out/etc/greetd
+                        cp config/kitty-greeter.conf $out/etc/greetd/kitty.conf
 
-            # Install compositor configs with corrected paths
-            # Replace hardcoded /usr/local/bin/sysc-greet with Nix store path
-            cp config/niri-greeter-config.kdl $out/etc/greetd/
-            cp config/hyprland-greeter-config.conf $out/etc/greetd/
-            cp config/sway-greeter-config $out/etc/greetd/
+                        # Install compositor configs with corrected paths
+                        # Replace hardcoded /usr/local/bin/sysc-greet with Nix store path
+                        cp config/niri-greeter-config.kdl $out/etc/greetd/
+                        cp config/hyprland-greeter-config.conf $out/etc/greetd/
+                        cp config/sway-greeter-config $out/etc/greetd/
 
-            # Substitute all hardcoded paths with Nix store paths
-            substituteInPlace $out/etc/greetd/niri-greeter-config.kdl \
-              --replace '/usr/local/bin/sysc-greet' "$out/bin/sysc-greet" \
-              --replace 'swww-daemon' "${pkgs.swww}/bin/swww-daemon" \
-              --replace 'kitty ' "${pkgs.kitty}/bin/kitty " \
-              --replace 'niri msg' "${pkgs.niri}/bin/niri msg"
-            
-            substituteInPlace $out/etc/greetd/hyprland-greeter-config.conf \
-              --replace '/usr/local/bin/sysc-greet' "$out/bin/sysc-greet" \
-              --replace 'swww-daemon' "${pkgs.swww}/bin/swww-daemon" \
-              --replace 'kitty ' "${pkgs.kitty}/bin/kitty " \
-              --replace 'hyprctl ' "${pkgs.hyprland}/bin/hyprctl "
-            
-            substituteInPlace $out/etc/greetd/sway-greeter-config \
-              --replace '/usr/local/bin/sysc-greet' "$out/bin/sysc-greet" \
-              --replace 'swww-daemon' "${pkgs.swww}/bin/swww-daemon" \
-              --replace 'kitty ' "${pkgs.kitty}/bin/kitty " \
-              --replace 'swaymsg ' "${pkgs.sway}/bin/swaymsg "
+                        # Substitute all hardcoded paths with Nix store paths
+                        substituteInPlace $out/etc/greetd/niri-greeter-config.kdl \
+                          --replace '/usr/local/bin/sysc-greet' "$out/bin/sysc-greet" \
+                          --replace 'swww-daemon' "${pkgs.swww}/bin/swww-daemon" \
+                          --replace 'kitty ' "${pkgs.kitty}/bin/kitty " \
+                          --replace 'niri msg' "${pkgs.niri}/bin/niri msg"
 
-            # Install polkit rule
-            mkdir -p $out/etc/polkit-1/rules.d
-            cat > $out/etc/polkit-1/rules.d/85-greeter.rules <<'EOF'
-polkit.addRule(function(action, subject) {
-    if ((action.id == "org.freedesktop.login1.power-off" ||
-         action.id == "org.freedesktop.login1.reboot") &&
-        subject.user == "greeter") {
-        return polkit.Result.YES;
-    }
-});
-EOF
+                        substituteInPlace $out/etc/greetd/hyprland-greeter-config.conf \
+                          --replace '/usr/local/bin/sysc-greet' "$out/bin/sysc-greet" \
+                          --replace 'swww-daemon' "${pkgs.swww}/bin/swww-daemon" \
+                          --replace 'kitty ' "${pkgs.kitty}/bin/kitty " \
+                          --replace 'hyprctl ' "${pkgs.hyprland}/bin/hyprctl "
 
-            # Create cache directory marker
-            mkdir -p $out/var/cache/sysc-greet
+                        substituteInPlace $out/etc/greetd/sway-greeter-config \
+                          --replace '/usr/local/bin/sysc-greet' "$out/bin/sysc-greet" \
+                          --replace 'swww-daemon' "${pkgs.swww}/bin/swww-daemon" \
+                          --replace 'kitty ' "${pkgs.kitty}/bin/kitty " \
+                          --replace 'swaymsg ' "${pkgs.sway}/bin/swaymsg "
+
+                        # Install polkit rule
+                        mkdir -p $out/etc/polkit-1/rules.d
+                        cat > $out/etc/polkit-1/rules.d/85-greeter.rules <<'EOF'
+            polkit.addRule(function(action, subject) {
+                if ((action.id == "org.freedesktop.login1.power-off" ||
+                     action.id == "org.freedesktop.login1.reboot") &&
+                    subject.user == "greeter") {
+                    return polkit.Result.YES;
+                }
+            });
+            EOF
+
+                        # Create cache directory marker
+                        mkdir -p $out/var/cache/sysc-greet
           '';
 
           meta = with pkgs.lib; {
@@ -126,9 +132,16 @@ EOF
           '';
         };
       }
-    ) // {
+    )
+    // {
       # NixOS module
-      nixosModules.default = { config, lib, pkgs, ... }:
+      nixosModules.default =
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
         with lib;
         let
           cfg = config.services.sysc-greet;
@@ -139,7 +152,11 @@ EOF
             enable = mkEnableOption "sysc-greet greeter for greetd";
 
             compositor = mkOption {
-              type = types.enum [ "niri" "hyprland" "sway" ];
+              type = types.enum [
+                "niri"
+                "hyprland"
+                "sway"
+              ];
               default = "niri";
               description = "Wayland compositor to use with sysc-greet";
             };
@@ -164,7 +181,7 @@ EOF
 
             # Expose Sessions for sysc-greet to pick up
             environment.pathsToLink = [ "/share/wayland-sessions" ];
-            
+
             # Configure greetd
             services.greetd = {
               enable = true;
@@ -177,24 +194,33 @@ EOF
                     if cfg.compositor == "niri" then
                       "${pkgs.niri}/bin/niri -c /etc/greetd/niri-greeter-config.kdl"
                     else if cfg.compositor == "hyprland" then
-                      "${pkgs.hyprland}/bin/start-hyprland -- -c /etc/greetd/hyprland-greeter-config.conf"
+                      "/run/current-system/sw/bin/uwsm start start-hyprland -- -c /etc/greetd/hyprland-greeter-config.conf"
                     else
                       "${pkgs.sway}/bin/sway -c /etc/greetd/sway-greeter-config";
                   user = "greeter";
                 };
-              } // lib.optionalAttrs (cfg.settings ? initial_session) {
+              }
+              // lib.optionalAttrs (cfg.settings ? initial_session) {
                 initial_session = cfg.settings.initial_session;
               };
             };
 
             # Install sysc-greet and compositor-specific dependencies
-            environment.systemPackages = with pkgs; [
-              package
-              kitty
-              swww
-            ] ++ (if cfg.compositor == "niri" then [ niri ]
-              else if cfg.compositor == "hyprland" then [ hyprland ]
-              else [ sway ]);
+            environment.systemPackages =
+              with pkgs;
+              [
+                package
+                kitty
+                swww
+              ]
+              ++ (
+                if cfg.compositor == "niri" then
+                  [ niri ]
+                else if cfg.compositor == "hyprland" then
+                  [ hyprland ]
+                else
+                  [ sway ]
+              );
 
             # Copy config files to /etc
             environment.etc = {
