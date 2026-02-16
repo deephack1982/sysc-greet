@@ -213,15 +213,6 @@
                 kitty
                 swww
               ]
-              ++ (
-                if cfg.compositor == "niri" then
-                  [ niri ]
-                else if cfg.compositor == "hyprland" then
-                  [ hyprland ]
-                else
-                  [ sway ]
-              );
-
             # Copy config files to /etc
             environment.etc = {
               "greetd/kitty.conf".source = "${package}/etc/greetd/kitty.conf";
